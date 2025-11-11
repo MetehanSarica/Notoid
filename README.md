@@ -1,6 +1,4 @@
-from pathlib import Path
-
-readme_content = """# Notoid
+# Notoid
 
 **Notoid** is an AI-powered study assistant that summarizes your documents into concise, well-structured PDF study notes.  
 It supports multiple file formats including **PDF**, **Word (.docx)**, and **PowerPoint (.pptx)**.
