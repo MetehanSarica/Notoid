@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Resources/NotoidLogo.png" width="120" alt="Notoid Logo">
+  <img src="Notoid/Resources/NotoidLogo.png" width="120" alt="Notoid Logo">
 </p>
 
 <h1 align="center">Notoid</h1>
