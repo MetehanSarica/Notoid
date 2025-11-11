@@ -100,8 +100,6 @@ If you have a suggestion that would make this better, please fork the repo and c
 
 ## 📄 License
 
-(Bu bölümü lisans eklemeye karar verirseniz güncelleyin.)
-
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## 📧 Contact
