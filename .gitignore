@@ -1,0 +1,17 @@
+# Visual Studio build output
+bin/
+obj/
+
+# User-specific files
+.vs/
+*.user
+*.suo
+
+# Configuration files containing secrets
+App.config
+appsettings.json
+
+# Other common ignored files
+*.log
+*.tmp
+*.cache
