@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/MetehanSarica/Notoid/assets/logo.png" width="120" alt="Notoid Logo">
+  <img src="Resources/NotoidLogo.png" width="120" alt="Notoid Logo">
 </p>
 
 <h1 align="center">Notoid</h1>
