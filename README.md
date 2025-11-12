@@ -33,8 +33,7 @@ This project is built on the .NET Framework and utilizes several powerful librar
 | Framework | **Windows Forms** |
 | AI Model | **Google Gemini API** |
 | PDF Generation | **QuestPDF** |
-| Document Parsing | **PdfPig** (for PDF) |
-| | **OpenXML SDK** (for DOCX & PPTX) |
+| **Document Parsing** | PdfPig (for PDF), OpenXML SDK (for DOCX & PPTX) |
 | Configuration | **System.Configuration** |
 
 ## 🏁 Getting Started
