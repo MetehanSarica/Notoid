@@ -58,6 +58,13 @@ Follow these instructions to get a copy of the project up and running on your lo
 3.  **Restore NuGet Packages:**
     Right-click the solution in Solution Explorer and select "Restore NuGet Packages".
 
+### 🗺️ Roadmap
+
+Notoid is continuously evolving with new features and improvements.  
+You can view the complete development plan, upcoming features, and version goals here:
+
+🔗 [**View Full Roadmap →**](./ROADMAP.md)
+
 ### Configuration
 
 Before you can run the project, you must add your Google Gemini API key.
