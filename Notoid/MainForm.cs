@@ -1,5 +1,5 @@
 ﻿/*
- * GEREKLİ KÜTÜPHANELER (NuGet):
+ * Required NuGet Packages:
  * - DocumentFormat.OpenXml
  * - PdfPig
  * - QuestPDF
@@ -23,9 +23,8 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using DocumentFormat.OpenXml.Presentation;
-using Notoid; // Resources için eklendi
+using Notoid; // For embedded resources
 using System.Configuration;
-
 
 namespace Notoid
 {
@@ -41,24 +40,29 @@ namespace Notoid
         {
             InitializeComponent();
 
-            // ✅ İkonu Resources’tan yükle
+            // Load application icon from embedded resources
             using (var ms = new MemoryStream(Resources.NotoidLogoIcon))
             {
-                this.Icon = new Icon(ms, new System.Drawing.Size(32, 32));
+                this.Icon = new Icon(ms);
             }
 
             this.Text = "Notoid v1.3.4";
+
+            // Initialize QuestPDF license
             QuestPDF.Settings.License = LicenseType.Community;
+
             UpdateSummarizeButtonState();
         }
 
         private void btnAddFiles_Click(object sender, EventArgs e)
         {
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Title = "Select Files to Summarize";
-            fileDialog.Filter = "All Supported Files (*.pdf;*.docx;*.pptx)|*.pdf;*.docx;*.pptx|PDF Files (*.pdf)|*.pdf|Word Documents (*.docx)|*.docx|PowerPoint Files (*.pptx)|*.pptx";
-            fileDialog.Multiselect = true;
-            fileDialog.RestoreDirectory = true;
+            OpenFileDialog fileDialog = new OpenFileDialog
+            {
+                Title = "Select Files to Summarize",
+                Filter = "All Supported Files (*.pdf;*.docx;*.pptx)|*.pdf;*.docx;*.pptx|PDF Files (*.pdf)|*.pdf|Word Documents (*.docx)|*.docx|PowerPoint Files (*.pptx)|*.pptx",
+                Multiselect = true,
+                RestoreDirectory = true
+            };
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -70,6 +74,7 @@ namespace Notoid
                         lstFiles.Items.Add(Path.GetFileName(filePath));
                     }
                 }
+
                 UpdateSummarizeButtonState();
             }
         }
@@ -90,15 +95,18 @@ namespace Notoid
                 return;
             }
 
-            SaveFileDialog savePdfDialog = new SaveFileDialog();
-            savePdfDialog.Title = "Save Summary PDF";
-            savePdfDialog.Filter = "PDF File (*.pdf)|*.pdf";
-            savePdfDialog.FileName = "MyStudySummary.pdf";
+            SaveFileDialog savePdfDialog = new SaveFileDialog
+            {
+                Title = "Save Summary PDF",
+                Filter = "PDF File (*.pdf)|*.pdf",
+                FileName = "MyStudySummary.pdf"
+            };
 
             if (savePdfDialog.ShowDialog() == DialogResult.OK)
             {
                 string savePath = savePdfDialog.FileName;
                 LockUI(true);
+
                 lblStatus.Text = "Starting summarization process...";
                 progressBar.Value = 0;
                 progressBar.Maximum = filePaths.Count;
@@ -107,14 +115,17 @@ namespace Notoid
 
                 try
                 {
+                    // Process each selected file
                     for (int i = 0; i < filePaths.Count; i++)
                     {
                         string filePath = filePaths[i];
                         string fileName = Path.GetFileName(filePath);
+
                         lblStatus.Text = $"Reading '{fileName}'...";
 
                         string content = await ReadFileContentAsync(filePath);
 
+                        // Limit content length to prevent API overload
                         if (content.Length > 20000)
                             content = content.Substring(0, 20000);
 
@@ -127,6 +138,7 @@ namespace Notoid
                         }
 
                         lblStatus.Text = $"Summarizing '{fileName}' with AI...";
+
                         string summary = await SummarizeWithAIAsync(content);
 
                         allSummaries.AppendLine($"--- SUMMARY OF {fileName.ToUpper()} ---");
@@ -140,12 +152,14 @@ namespace Notoid
                     await CreatePdfAsync(allSummaries.ToString(), savePath);
 
                     lblStatus.Text = "Process completed!";
-                    MessageBox.Show($"Your summary file has been created successfully:\n{savePath}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Your summary file has been created successfully:\n{savePath}",
+                        "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
                     lblStatus.Text = "An error occurred.";
-                    MessageBox.Show($"An error occurred during the process: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"An error occurred during the process: {ex.Message}",
+                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 finally
                 {
@@ -156,6 +170,9 @@ namespace Notoid
             }
         }
 
+        /// <summary>
+        /// Locks or unlocks UI components during processing.
+        /// </summary>
         private void LockUI(bool isLocked)
         {
             btnAddFiles.Enabled = !isLocked;
@@ -163,11 +180,17 @@ namespace Notoid
             lstFiles.Enabled = !isLocked;
         }
 
+        /// <summary>
+        /// Enables or disables the summarize button based on file selection.
+        /// </summary>
         private void UpdateSummarizeButtonState()
         {
             btnSummarize.Enabled = filePaths.Count > 0;
         }
 
+        /// <summary>
+        /// Reads textual content from supported document types (.pdf, .docx, .pptx).
+        /// </summary>
         private async Task<string> ReadFileContentAsync(string filePath)
         {
             return await Task.Run(() =>
@@ -179,6 +202,7 @@ namespace Notoid
                 {
                     if (fileExtension == ".docx")
                     {
+                        // Extract text from Word document
                         using (WordprocessingDocument doc = WordprocessingDocument.Open(filePath, false))
                         {
                             if (doc.MainDocumentPart?.Document.Body != null)
@@ -190,6 +214,7 @@ namespace Notoid
                     }
                     else if (fileExtension == ".pptx")
                     {
+                        // Extract text from PowerPoint slides
                         using (PresentationDocument ppt = PresentationDocument.Open(filePath, false))
                         {
                             var slideParts = ppt.PresentationPart?.SlideParts;
@@ -205,6 +230,7 @@ namespace Notoid
                     }
                     else if (fileExtension == ".pdf")
                     {
+                        // Extract text from PDF
                         using (PdfDocument document = PdfDocument.Open(filePath))
                         {
                             foreach (Page page in document.GetPages())
@@ -225,12 +251,17 @@ namespace Notoid
             });
         }
 
+        /// <summary>
+        /// Sends document text to Gemini API for summarization.
+        /// </summary>
         private async Task<string> SummarizeWithAIAsync(string textToSummarize)
         {
             try
             {
                 string fullApiUrl = $"{ApiUrl}{ApiKey}";
-                string prompt = $"You are an expert academic assistant. Summarize the following text for a university student. Focus on the main concepts, key definitions, and critical conclusions. Present the summary clearly.\n\nText:\n\"{textToSummarize}\"";
+
+                string prompt = $"You are an expert academic assistant. Summarize the following text for a university student. " +
+                                $"Focus on the main concepts, key definitions, and critical conclusions. Present the summary clearly.\n\nText:\n\"{textToSummarize}\"";
 
                 var payload = new
                 {
@@ -273,6 +304,9 @@ namespace Notoid
             }
         }
 
+        /// <summary>
+        /// Generates a summarized PDF document using QuestPDF.
+        /// </summary>
         private Task CreatePdfAsync(string allSummaries, string savePath)
         {
             return Task.Run(() =>
@@ -282,12 +316,13 @@ namespace Notoid
                     container.Page(page =>
                     {
                         page.Margin(2, Unit.Centimetre);
+
                         page.DefaultTextStyle(style =>
                             style.FontSize(10)
                                  .FontFamily("Calibri"));
 
                         page.Header()
-                            .Text("Notoid - Ders Özetleri")
+                            .Text("Notoid - Study Summaries")
                             .FontSize(14)
                             .FontColor(Colors.Grey.Darken2)
                             .SemiBold();
@@ -303,7 +338,7 @@ namespace Notoid
                             .AlignCenter()
                             .Text(text =>
                             {
-                                text.Span("Sayfa ");
+                                text.Span("Page ");
                                 text.CurrentPageNumber();
                                 text.Span(" / ");
                                 text.TotalPages();
